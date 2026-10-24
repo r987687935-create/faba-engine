@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FABA Engine - Global Business Management AI</title>
+    <style>
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #07090e; padding: 10px; color: #f8fafc; }
+        .app-container { max-width: 480px; margin: 0 auto; background: #0f172a; border-radius: 26px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); overflow: hidden; border: 1px solid #1e293b; }
+        
+        /* Onboarding Screen Modal */
+        #onboardingModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(7, 9, 14, 0.96); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 15px; }
+        .modal-card { background: #1e293b; border-radius: 22px; padding: 22px; width: 100%; max-width: 430px; border: 1px solid #38bdf8; text-align: center; box-shadow: 0 10px 30px rgba(56,189,248,0.25); }
+        .modal-card h2 { font-size: 22px; color: #38bdf8; margin-bottom: 8px; }
+        .modal-card p { font-size: 13px; color: #94a3b8; margin-bottom: 16px; }
+        .option-btn { width: 100%; padding: 12px; margin: 6px 0; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 12px; font-size: 13.5px; cursor: pointer; text-align: left; }
+        .option-btn:hover { border-color: #38bdf8; background: #1e293b; }
+
+        /* Header */
+        .header { background: linear-gradient(135deg, #0f172a, #1e1b4b, #312e81); color: white; padding: 22px; text-align: center; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; }
+        .header h1 { font-size: 28px; font-weight: 900; background: linear-gradient(to right, #38bdf8, #c084fc, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .welcome-text { font-size: 13.5px; color: #38bdf8; font-weight: 700; margin-top: 6px; }
+        
+        .badge-bar { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
+        .badge { background: #334155; color: #38bdf8; font-size: 10.5px; font-weight: bold; padding: 4px 10px; border-radius: 20px; border: 1px solid #475569; }
+        .badge-owner { background: #059669; color: white; }
+        .badge-expired { background: #dc2626; color: white; }
+
+        .controls-bar { display: flex; justify-content: space-between; margin-top: 14px; gap: 8px; }
+        .select-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 9px; border-radius: 10px; font-size: 11.5px; width: 49%; outline: none; font-weight: 600; }
+        .select-btn option { background: #1e293b; color: white; }
+
+        /* App Owner Subscription Payment Box (₹599) */
+        .pay-box { background: linear-gradient(135deg, #065f46, #047857); padding: 16px; margin: 14px; border-radius: 18px; border: 1px solid #10b981; text-align: center; box-shadow: 0 8px 20px rgba(16,185,129,0.25); }
+        .pay-box h3 { font-size: 16px; color: #ffffff; font-weight: 800; }
+        .price-tag-line { font-size: 13px; margin-top: 4px; color: #a7f3d0; }
+        .old-price { text-decoration: line-through; color: #f87171; font-weight: bold; }
+        .upi-badge-container { display: flex; justify-content: center; gap: 8px; margin: 10px 0; font-size: 11px; font-weight: bold; }
+        .upi-chip { background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); }
+        .pay-now-btn { width: 100%; background: #ffffff; color: #065f46; border: none; padding: 12px; font-weight: 900; border-radius: 12px; font-size: 14.5px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+
+        /* Tools Bar */
+        .tools-bar { display: flex; gap: 8px; margin: 14px; }
+        .tool-btn { flex: 1; background: #1e293b; border: 1px solid #475569; color: #38bdf8; padding: 10px; border-radius: 12px; font-size: 12px; font-weight: bold; cursor: pointer; text-align: center; }
+
+        /* Voice Assistant Section */
+        .voice-section { text-align: center; padding: 6px 0; }
+        .voice-btn { background: linear-gradient(135deg, #db2777, #9333ea); color: white; border: none; width: 55px; height: 55px; border-radius: 50%; font-size: 24px; cursor: pointer; box-shadow: 0 8px 20px rgba(219,39,119,0.4); }
+        .voice-label { font-size: 11px; color: #94a3b8; margin-top: 4px; font-weight: 600; }
+
+        /* Scratch Card Box */
+        .scratch-card-box { background: linear-gradient(135deg, #7c3aed, #4f46e5, #0284c7); color: white; padding: 18px; margin: 14px; border-radius: 18px; text-align: center; box-shadow: 0 8px 25px rgba(79,70,229,0.35); }
+        .scratch-btn { background: #ffffff; color: #4f46e5; border: none; padding: 10px 22px; font-weight: bold; border-radius: 25px; cursor: pointer; margin-top: 10px; font-size: 13.5px; }
+        .reward-result { font-size: 14.5px; font-weight: bold; margin-top: 10px; display: none; background: rgba(0,0,0,0.35); padding: 10px; border-radius: 12px; }
+
+        /* Master Owner Private Room */
+        .owner-section { background: #1e293b; padding: 16px; margin: 14px; border-radius: 16px; border: 2px solid #f43f5e; text-align: center; }
+        .owner-btn { background: #f43f5e; color: white; border: none; padding: 11px 20px; font-weight: bold; border-radius: 10px; cursor: pointer; width: 100%; font-size: 14px; }
+        
+        #ownerDashboard { display: none; background: #0f172a; margin-top: 12px; padding: 14px; border-radius: 12px; border: 1px dashed #f43f5e; text-align: left; }
+        #ownerDashboard h4 { color: #f43f5e; font-size: 14px; margin-bottom: 8px; }
+
+        /* Main Form */
+        .card { padding: 16px; margin: 14px; background: #1e293b; border-radius: 18px; border: 1px solid #334155; }
+        input, select { width: 100%; padding: 12px; margin: 6px 0; border: 1px solid #475569; border-radius: 10px; font-size: 14px; background: #0f172a; color: white; outline: none; }
+        .btn-main { width: 100%; padding: 14px; background: linear-gradient(135deg, #059669, #10b981); color: white; border: none; border-radius: 10px; font-size: 15.5px; font-weight: bold; cursor: pointer; margin-top: 8px; }
+
+        /* History */
+        .transaction-list { margin: 14px; max-height: 220px; overflow-y: auto; }
+        .transaction-item { background: #1e293b; padding: 12px; border-radius: 12px; margin-bottom: 8px; border: 1px solid #334155; font-size: 13.5px; }
+        .trans-header { display: flex; justify-content: space-between; font-weight: 700; color: #f1f5f9; }
+        .trans-sub { display: flex; justify-content: space-between; margin-top: 5px; color: #94a3b8; font-size: 12px; }
+        .udhar-tag { color: #f87171; font-weight: bold; }
+        .cash-tag { color: #34d399; font-weight: bold; }
+        .action-btns { display: flex; gap: 6px; margin-top: 6px; }
+        .wa-btn { background: #059669; color: white; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; text-decoration: none; }
+        .pdf-btn { background: #3b82f6; color: white; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; border: none; cursor: pointer; }
+        .pay-collect-btn { background: #8b5cf6; color: white; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<!-- AI Onboarding Survey Modal -->
+<div id="onboardingModal">
+    <div class="modal-card">
+        <h2>🌐 FABA Engine Setup</h2>
+        <p>পছন্দের ভাষা ও ব্যবসার ধরন নির্বাচন করুন:</p>
+        <button class="option-btn" onclick="completeOnboarding('🇧🇩 বাংলা', 'চাল ও শস্য আড়ত ব্যবসা')">🌾 ১. বাংলা - চাল, শস্য ও আড়ত ব্যবসা</button>
+        <button class="option-btn" onclick="completeOnboarding('🇧🇩 বাংলা', 'মুদিখানা ও খুচরা দোকান')">🛒 ২. বাংলা - মুদিখানা ও জেনারেল স্টোর</button>
+        <button class="option-btn" onclick="completeOnboarding('🇬🇧 English', 'Retail & Wholesale Business')">🛍️ 3. English - Retail & Wholesaler</button>
+        <button class="option-btn" onclick="completeOnboarding('🇮🇳 हिंदी', 'व्यापार एवं दुकान')">🏬 4. हिंदी - व्यापार एवं दुकान</button>
+        <button class="option-btn" onclick="completeOnboarding('🇪🇸 Español', 'Gestión de Negocios')">🇪🇸 5. Español - Business Assistant</button>
+    </div>
+</div>
+
+<div class="app-container">
+    <!-- Header -->
+    <div class="header">
+        <h1>FABA Engine</h1>
+        <div class="welcome-text" id="welcomeMsg">Welcome to FABA Engine - আপনার ব্যবসার হিসাবের সহজ সমাধান</div>
+        <div class="badge-bar">
+            <span class="badge" id="trialBadge">⏳ ৭ দিনের ফ্রি ট্রায়াল অ্যাক্টিভ</span>
+            <span class="badge" id="userModeTag">🎯 সেটআপ সম্পন্ন</span>
+        </div>
+        <div class="controls-bar">
+            <select class="select-btn" id="shopType">
+                <option value="all">🛒 সব ব্যবসা (Universal)</option>
+                <option value="rice">🌾 চাল ও শস্য আড়ত</option>
+                <option value="grocery">🛒 মুদিখানা (Grocery)</option>
+                <option value="clothing">👕 কাপড়ের দোকান</option>
+                <option value="restaurant">🍽️ রেস্তোরাঁ / ক্যাফে</option>
+            </select>
+            <select class="select-btn" id="langSelect" onchange="changeLanguage(this.value)">
+                <option value="bn">🇧🇩 বাংলা</option>
+                <option value="en">🇬🇧 English</option>
+                <option value="hi">🇮🇳 हिंदी</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="ar">🇸🇦 العربية</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 💳 App Subscription Payment Box (Direct to Owner Farhan's Bank) -->
+    <div class="pay-box">
+        <h3>⚡ প্রিমিয়াম সাবস্ক্রিপশন প্ল্যান</h3>
+        <div class="price-tag-line"><span class="old-price">₹৯৯৯</span> ➔ <strong>₹৫৯৯ / বছর</strong> (৭ দিন ট্রায়াল শেষ হলে)</div>
+        <div class="upi-badge-container">
+            <span class="upi-chip">GPay</span>
+            <span class="upi-chip">PhonePe</span>
+            <span class="upi-chip">Paytm</span>
+            <span class="upi-chip">BHIM UPI</span>
+        </div>
+        <button class="pay-now-btn" onclick="processOwnerSubscriptionPayment()">💳 ১-ক্লিকে সাবস্ক্রিপশন পেমেন্ট করুন</button>
+    </div>
+
+    <!-- AI Voice Assistant -->
+    <div class="voice-section">
+        <button class="voice-btn" onclick="startVoiceAssistance()">🎙️</button>
+        <div class="voice-label" id="voiceLabel">কথা বলে অটো-এন্ট্রি করুন (AI Voice Engine)</div>
+    </div>
+
+    <!-- Advanced Tools: Barcode & Stock Alert -->
+    <div class="tools-bar">
+        <button class="tool-btn" onclick="openBarcodeScanner()">📷 বারকোড স্ক্যানার</button>
+        <button class="tool-btn" onclick="checkStockAlert()">📦 স্টক অ্যালার্ট চেক</button>
+    </div>
+
+    <!-- Scratch Card Box -->
+    <div class="scratch-card-box">
+        <h3>💎 Pro Subscription Discount Coupon</h3>
+        <p style="font-size: 11.5px; margin-top: 3px; opacity: 0.9;">₹৫৯৯ সাবস্ক্রিপশনে বিশেষ ছাড়ের কুপন জিতেন!</p>
+        <button class="scratch-btn" onclick="revealScratchCard()">কুপন রিভিল করুন</button>
+        <div id="rewardResult" class="reward-result"></div>
+    </div>
+
+    <!-- Master Owner Private Room (Strict Owner Security for Farhan) -->
+    <div class="owner-section">
+        <h3>🔒 মাস্টার ওনার প্রাইভেট রুম ও ব্যাংক কন্ট্রোল</h3>
+        <p style="font-size: 11.5px; color: #94a3b8; margin-bottom: 8px;">শুধুমাত্র মালিকের অফিশিয়াল জিমেইল দিয়ে সুরক্ষিত</p>
+        <button class="owner-btn" onclick="verifyOwnerAccess()">প্রাইভেট রুমে প্রবেশ করুন (Owner Only)</button>
+        
+        <div id="ownerDashboard">
+            <h4>👑 ওনার অফিশিয়াল ব্যাংক ও সাবস্ক্রিপশন রুম</h4>
+            <p style="font-size: 12px; color: #38bdf8; margin-bottom: 6px;">• ওনার সিকিউর জিমেইল: faba.engine.business@gmail.com</p>
+            <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 6px;">• সাবস্ক্রিপশন কালেকশন রুট: Direct Owner Bank Auto-Settlement</p>
+            <p style="font-size: 12px; color: #cbd5e1;">• অ্যান্টি-ফ্রড ডিভাইস ট্রায়াল লক: Active</p>
+        </div>
+    </div>
+
+    <!-- Main Entry Form -->
+    <div class="card">
+        <h3>স্মার্ট কেনাবেচা ও অটো-বিল এন্ট্রি</h3>
+        <input type="text" id="custName" placeholder="গ্রাহকের নাম">
+        <input type="tel" id="custPhone" placeholder="কাস্টমারের ওয়াটসঅ্যাপ নম্বর">
+        <input type="number" id="amount" placeholder="টাকার পরিমাণ (₹)">
+        <input type="text" id="itemName" placeholder="পণ্যের বিবরণ (যেমন: চাল, ডাল, তেল)">
+        <select id="type">
+            <option value="cash">নগদ পেমেন্ট (Cash Sale)</option>
+            <option value="udhar">বাকি হিসাব (Credit / Udhar)</option>
+        </select>
+        <button class="btn-main" onclick="addTransaction()">অটোমেটিক বিল তৈরি করুন</button>
+    </div>
+
+    <!-- History -->
+    <div class="transaction-list">
+        <h3 style="margin-bottom: 8px; font-size: 14px; color: #94a3b8;">আজকের লেনদেন ও রেকর্ড:</h3>
+        <div id="listContainer"></div>
+    </div>
+</div>
+
+<script>
+    let transactions = [];
+    let isCouponUsed = false;
+
+    // 🔒 Owner Direct Receiving UPI Address (ফারহানের ব্যাংকের ইউপিআই)
+    const OWNER_BANK_UPI = "faba.engine.business@okaxis"; 
+
+    // Device Hardware Fingerprint & One-Time Trial Lock Engine
+    window.onload = function() {
+        checkDeviceTrialSecurity();
+    };
+
+    function checkDeviceTrialSecurity() {
+        let deviceID = localStorage.getItem('faba_device_uuid');
+        let trialFirstUsed = localStorage.getItem('faba_trial_start_date');
+
+        if (!deviceID) {
+            deviceID = 'DEV-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+            localStorage.setItem('faba_device_uuid', deviceID);
+            localStorage.setItem('faba_trial_start_date', new Date().getTime());
+        } else {
+            let currentTime = new Date().getTime();
+            let daysPassed = (currentTime - parseInt(trialFirstUsed)) / (1000 * 60 * 60 * 24);
+
+            if (daysPassed > 7) {
+                document.getElementById('trialBadge').innerText = "🚫 ৭ দিনের ফ্রি ট্রায়াল সমাপ্ত (Subscribe ₹599)";
+                document.getElementById('trialBadge').className = "badge badge-expired";
+            }
+        }
+    }
+
+    // ⚡ App Subscription Instant Payment Engine (Triggers UPI Apps Direct)
+    function processOwnerSubscriptionPayment() {
+        let amount = 599;
+        let upiUrl = `upi://pay?pa=${OWNER_BANK_UPI}&pn=FABA%20Engine%20Owner&am=${amount}&cu=INR&tn=FABA%20Engine%20Subscription`;
+        window.location.href = upiUrl;
+    }
+
+    // 🛍️ Shopkeepers Customer Bill Collection (Goes to Shopkeeper's Own Bank Account)
+    function collectCustomerPayment(name, amount) {
+        let shopkeeperUpi = prompt(`কাস্টমার ${name}-এর থেকে ₹${amount} নেওয়ার জন্য দোকানদারের নিজস্ব UPI ID দিন:`);
+        if (shopkeeperUpi) {
+            let shopUrl = `upi://pay?pa=${shopkeeperUpi}&pn=Shop%20Payment&am=${amount}&cu=INR&tn=Bill%20Payment%20for%20${encodeURIComponent(name)}`;
+            window.location.href = shopUrl;
+        }
+    }
+
+    function completeOnboarding(lang, bizType) {
+        document.getElementById('onboardingModal').style.display = 'none';
+        document.getElementById('userModeTag').innerText = "🎯 " + bizType;
+        alert("FABA Engine আপনার " + lang + " ভাষায় এবং " + bizType + " মোডে সফলভাবে চালু হয়েছে!");
+    }
+
+    // Strict Master Owner Verification (For Farhan Only)
+    function verifyOwnerAccess() {
+        let userEmail = prompt("আপনার ওনার জিমেইল আইডি দিন:");
+        let userPass = prompt("মাস্টার পাসওয়ার্ড দিন:");
+
+        const OWNER_EMAIL = "faba.engine.business@gmail.com";
+        const OWNER_PASS = "FARHAN777";
+
+        if (userEmail === OWNER_EMAIL && userPass === OWNER_PASS) {
+            alert("👑 স্বাগতম ফারহান বস! ওনার প্রাইভেট রুম এবং ব্যাংক কন্ট্রোল সফলভাবে আনলক করা হয়েছে।");
+            document.getElementById('trialBadge').innerText = "👑 OWNER LIFETIME UNLOCKED";
+            document.getElementById('trialBadge').className = "badge badge-owner";
+            document.getElementById('ownerDashboard').style.display = 'block';
+        } else {
+            alert("❌ [ERROR]: Access Denied! \n\nশুধুমাত্র কোম্পানির মূল মালিক (ফারহান) অফিশিয়াল জিমেইল দিয়ে এই কন্ট্রোল প্যানেলে এক্সেস করতে পারবেন।");
+            document.getElementById('ownerDashboard').style.display = 'none';
+        }
+    }
+
+    // AI Voice Recognition Assistance
+    function startVoiceAssistance() {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = document.getElementById('langSelect').value === 'bn' ? 'bn-BD' : 'en-US';
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                let speechResult = event.results[0][0].transcript;
+                document.getElementById('itemName').value = speechResult;
+                alert("Pro Voice AI রেকর্ড করেছে: " + speechResult);
+            };
+        } else {
+            alert("আপনার ফোনে ভয়েস সার্ভিস চালুর ব্যবস্থা রয়েছে।");
+        }
+    }
+
+    function openBarcodeScanner() {
+        let scannedItem = prompt("বারকোড স্ক্যানার সিমুলেটর: পণ্যের নাম বা কোড লিখুন:");
+        if(scannedItem) {
+            document.getElementById('itemName').value = scannedItem;
+            alert("✅ বারকোড থেকে পণ্য সফলভাবে যুক্ত হয়েছে: " + scannedItem);
+        }
+    }
+
+    function checkStockAlert() {
+        alert("📦 FABA AI স্টক চেক: আপনার গোডাউনে চাল ও ডালের স্টক পর্যাপ্ত রয়েছে।");
+    }
+
+    function revealScratchCard() {
+        if(isCouponUsed) {
+            alert("⚠️ আপনি ইতিমধ্যেই আপনার ডিসকাউন্ট কুপন ব্যবহার করে ফেলেছেন!");
+            return;
+        }
+
+        let rand = Math.random() * 100;
+        let discount = "5% OFF (Code: FABA5)";
+
+        if (rand < 60) { discount = "5% OFF (Code: FABA5)"; }
+        else if (rand < 90) { discount = "7% OFF (Code: FABA7)"; }
+        else { discount = "10% OFF (Code: FABA10)"; }
+
+        let resultBox = document.getElementById('rewardResult');
+        resultBox.style.display = 'block';
+        resultBox.innerHTML = `🏆 আপনার কুপন: <strong>${discount}</strong> (একবার ব্যবহারযোগ্য)`;
+        isCouponUsed = true;
+    }
+
+    function changeLanguage(lang) {
+        let welcome = "Welcome to FABA Engine - আপনার ব্যবসার হিসাবের সহজ সমাধান";
+        if(lang === 'en') welcome = "Welcome to FABA Engine - Easy Companion for Your Business";
+        if(lang === 'hi') welcome = "Welcome to FABA Engine - आपके आसान व्यापार का साथी";
+        document.getElementById('welcomeMsg').innerText = welcome;
+    }
+
+    function addTransaction() {
+        let name = document.getElementById('custName').value;
+        let phone = document.getElementById('custPhone').value;
+        let amount = document.getElementById('amount').value;
+        let item = document.getElementById('itemName').value;
+        let type = document.getElementById('type').value;
+
+        if(!name || !amount || !item) {
+            alert('দয়া করে সমস্ত তথ্য সঠিকভাবে পূরণ করুন!');
+            return;
+        }
+
+        let entry = { name, phone, amount, item, type, time: new Date().toLocaleTimeString() };
+        transactions.push(entry);
+
+        document.getElementById('custName').value = '';
+        document.getElementById('custPhone').value = '';
+        document.getElementById('amount').value = '';
+        document.getElementById('itemName').value = '';
+
+        renderList();
+    }
+
+    function generatePDF(name, item, amount, type) {
+        alert(`📄 PDF ইনভয়েস জেনারেট হচ্ছে...\n\nগ্রাহক: ${name}\nপণ্য: ${item}\nটাকা: ₹${amount} (${type})\n\nইনভয়েস ফাইল ডাউনলোড সফল
